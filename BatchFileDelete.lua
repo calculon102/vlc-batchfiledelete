@@ -21,14 +21,9 @@ function descriptor()
     version = "0.9",
     shortdesc = [[BatchFileDelete]],
     longdesc= [[
-Opens companion-dialog which allows to delete the file currently played from harddisk, if possible.
-It automatically jumps to the next file playing, allowing for manual batch-processing.
+Enables batch-processing a playlist while deciding to skip or physically delete the current playing item. In any case, the next item will be played after decision is made.
 
-This extenstion is in beta-state and needs additional testing for different OS and playlist situations.
-Please do not hesistate to write a comment or mail describing a concrete error message or situation.
-
-You use this extension at your own risk - author cannot be held responsible
-for any direct or indirect damage caused.
+This extension just works for me and is in beta-state. It probably needs additional testing for different OS and playlist situations. Please do not hesitate to write a comment or mail describing a concrete error message or situation.
 	  ]],
     url="https://github.com/calculon102/vlc-batchfiledelete",
     capabilities = { "input-listener" }
