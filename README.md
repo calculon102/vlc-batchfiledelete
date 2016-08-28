@@ -1,4 +1,4 @@
-# BatchFileDelete
+# BatchFileDelete - Version 0.92
 
 Extension for the [VLC] media player extension. Enables batch-processing a playlist while deciding to skip or physically delete the current playing item. In any case, the next item will be played after decision is made.
 
