@@ -1,3 +1,8 @@
+/**
+ * Windows-specific companion util to BatchFileDelete-Extension for VLC.
+ * Because the Lua-Engine only supports POSIX-filesystems, we have to delete this way.
+ * See: 
+ */
 #include <stdio.h>
 
 int main (int argc, char * argv[])
@@ -14,7 +19,7 @@ int main (int argc, char * argv[])
     	printf("File deleted: %s", argv[1]);
     }
     
-    puts("");
+    puts(""); // Line-break. :)
     	
 	return 0;
 }

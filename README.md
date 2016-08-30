@@ -1,20 +1,14 @@
-# BatchFileDelete - Version 0.92
+# BatchFileDelete - Version 0.93
 
 Extension for the [VLC] media player extension. Enables batch-processing a playlist while deciding to skip or physically delete the current playing item. In any case, the next item will be played after decision is made.
+
+See: [REPOSITORY]
 
 ## Installation
 
 Copy the only lua file to the lua-extension folder of your VLC-installation and restart the media player. See [https://www.vlchelp.com/install-vlc-media-player-addon/] for further details.
 
-As of now (August 2016) these locations are
-
-### For All Users
-
-* In Windows: Program Files\VideoLAN\VLC\lua\extensions\ *not supported!*
-* In Mac OS X: /Applications/VLC.app/Contents/MacOS/share/lua/extensions/
-* In Linux: /usr/lib/vlc/lua/playlist/ or /usr/share/vlc/lua/extensions/
-
-### For Current User
+As of now (August 2016) these locations are for the current user
 
 * In Windows: %APPDATA%\vlc\lua\extensions\
 * In Mac OS X: /Users/%your_name%/Library/Application Support/org.videolan.vlc/lua/extensions/
@@ -22,7 +16,11 @@ As of now (August 2016) these locations are
 
 ### For Windows only
 
-Copy delfile.exe to %APPDATA%\vlc\lua\extensions\ this file implements the deletion of files from the filesystem as the Lua scripting-engine does not (reliably) support this on Windows-machines.
+Copy delfile.exe to %APPDATA%\vlc\lua\extensions\
+
+This file implements the deletion of files for Windows-filesystems as the Lua scripting-engine does not support this non POSIX-machines. The deletion behaviour on Windows is a also bit different this way.
+Instead of immediate deletion when pressing the according button, the deletion is reserved for the next user-action of the extension-dialog (delete, skip, close).
+This is to prevent VLC from freezing, when a current input-file is deleted on Windows. In addition you will see a short pop-up of a command-window as result of the external file-execution.   
 
 ## Motivation
 
@@ -32,7 +30,9 @@ I was surprised that after so many years of VLC and VLC-extensions there was no 
 
 This extension just _works for me_ on my linux-machine and is in beta-state. It probably needs additional testing for different OS and playlist situations. Please do not hesistate to write a comment or mail describing a concrete error message or situation.
 
-Windows-support is experimental. Because the OS-functions of Lua only support POSIX-filesystems the deletion on windows is implementend by the companion-executable 'delfile.exe'. However, on my testing-VMs this call caused VLC to freeze! Maybe you have more luck on your Windows-machine.
+Windows-support is experimental. Because the OS-functions of Lua only support POSIX-filesystems the deletion on windows is implementend by the companion-executable 'delfile.exe'. As described under installation, the deletion does not happen immediatlly as under POSIX-compatible systems.
 
 
+[REPOSITORY]: https://github.com/calculon102/vlc-batchfiledelete "BatchFileDelete-Repository"
 [VLC]: https://www.videolan.org/vlc/ "VLC"
+

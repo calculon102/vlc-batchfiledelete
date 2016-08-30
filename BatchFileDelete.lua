@@ -9,8 +9,16 @@ _dialog = nil
 -- Reference to the user-visible label holding the filename
 _fileLabel = nil
 
+-- Playlist-Id to be removed after input has changed. Windows-only.
 _idToRemove = nil
-_fileToDelete = nil
+
+-- Path to file to be reservated for deletion after input has changed. Windows-only.
+_winFileReservation = nil
+
+-- Path to file to be really, really deleted on next action. Windows-only.
+_winFileDeletion = nil
+
+-- Remeber previous ID of input-changed-event, becaus it's called twice for the same element sometimes. Really, VLC!?
 _prevId = nil
 
 
@@ -18,7 +26,7 @@ _prevId = nil
 function descriptor()
   return {
     title = "BatchFileDelete",
-    version = "0.92",
+    version = "0.93",
     shortdesc = [[BatchFileDelete]],
     longdesc= [[
 Enables batch-processing a playlist while deciding to skip or physically delete the current playing item. In any case, the next item will be played after decision is made.
@@ -39,7 +47,7 @@ function activate()
   end
 
   -- Create dialog.
-  _dialog = vlc.dialog("BatchFileDelete")
+  _dialog = vlc.dialog("BatchFileDelete v0.93")
   _dialog:add_label("Delete current input?", 1, 1, 3, 1)
 
   _fileLabel = _dialog:add_label(get_current_input_uri(), 1, 2, 3, 2)
@@ -79,9 +87,10 @@ function input_changed()
     _idToRemove = nil
   end
 
-  if _fileToDelete ~= nil then
-    delete_file(_fileToDelete)
-    _fileToDelete = nil
+  -- On Windows: Mark the reservated file to be deleted on next action (delete, next, close)
+  if _winFileReservation ~= nil then
+    _winFileDeletion = _winFileReservation
+    _winFileReservation = nil
   end
 
   -- Update dialog for new input
@@ -97,6 +106,8 @@ function on_delete()
     return
   end
 
+  remove_garbage()
+
   local uri = vlc.input.item():uri()
   local itemId = vlc.playlist.current()
 
@@ -110,9 +121,11 @@ function on_delete()
   vlc.msg.dbg(_dbg_prefix .. "Deletion triggered for " .. uri)
   local pathToDelete = convert_uri_to_local_path(uri)
 
+  -- On stupid Windows: Only mark file to be reservated for delete-reservation and reservation playlist-removal.
+  -- On not-Windows: Just delete und remove from playlist without fear of crashing the system.
   if vlc.win ~= nil then
     _idToRemove = itemId
-    _fileToDelete = pathToDelete
+    _winFileReservation = pathToDelete
   else
     delete_file(pathToDelete)
     remove_playlist_item(itemId)
@@ -124,6 +137,7 @@ end
 
 -- Event-handler for closing the dialog.
 function on_close()
+  remove_garbage()
   _dialog:delete()
   deactivate()
 end
@@ -131,6 +145,7 @@ end
 
 -- Event-handler for playing next item in playlist.
 function on_next()
+  remove_garbage()
   vlc.playlist.next()
 end
 
@@ -205,4 +220,11 @@ function get_absolute_path_index()
 
   -- On POSIX-Systems remove only file:// and keep one slash as root of absolute path
   return 8
+end
+
+
+-- Deletes the current reservated file
+function remove_garbage()
+    delete_file(_winFileDeletion)
+    _winFileDeletion = nil
 end
