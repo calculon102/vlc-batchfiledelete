@@ -3,6 +3,9 @@
 -- Debugging-prefix for this extension.
 _dbg_prefix = "[BatchFileDelete] "
 
+-- Version-String
+_version = "0.94"
+
 -- Reference to the main-dialog.
 _dialog = nil
 
@@ -26,7 +29,7 @@ _prevId = nil
 function descriptor()
   return {
     title = "BatchFileDelete",
-    version = "0.93",
+    version = _version,
     shortdesc = [[BatchFileDelete]],
     longdesc= [[
 Enables batch-processing a playlist while deciding to skip or physically delete the current playing item. In any case, the next item will be played after decision is made.
@@ -42,12 +45,9 @@ end
 -- Extension activator
 function activate()
   vlc.msg.dbg(_dbg_prefix .. "Activated")
-  if vlc.win ~= nil then
-    vlc.msg.dbg(_dbg_prefix .. "On Windows-OS")
-  end
 
   -- Create dialog.
-  _dialog = vlc.dialog("BatchFileDelete v0.93")
+  _dialog = vlc.dialog("BatchFileDelete v" .. _version)
   _dialog:add_label("Delete current input?", 1, 1, 3, 1)
 
   _fileLabel = _dialog:add_label(get_current_input_uri(), 1, 2, 3, 2)
@@ -57,6 +57,12 @@ function activate()
   _dialog:add_button("&Delete", on_delete, 1, 4, 1, 1)
   _dialog:add_button("&Skip", on_next, 2, 4, 1, 1)
   _dialog:add_button("&Close", on_close, 3, 4, 1, 1)
+  
+  if vlc.win ~= nil then
+    vlc.msg.dbg(_dbg_prefix .. "On Windows-OS")
+    _dialog:add_label("Please note: Files are deleted after the next action within dialog.<br>Please close this dialog before closing VLC itself.", 1, 5, 3, 1)  
+  end
+  
   _dialog:show()
 end
 
@@ -70,12 +76,13 @@ end
 -- VLC-callback if metadata changes.
 function meta_changed()
 -- NOP - function must exist for VLC
+  return false
 end
 
 
 -- VLC-callback if vlc-input has changed
 function input_changed()
-  if _prevId == vlc.playlist.current() then
+  if _prevId == vlc.playlist.current() and _prevId ~= _idToRemove then
     return
   end
 
@@ -139,7 +146,7 @@ end
 function on_close()
   remove_garbage()
   _dialog:delete()
-  deactivate()
+  vlc.deactivate()
 end
 
 
@@ -173,7 +180,7 @@ function delete_file(path)
   if vlc.win ~= nil then
     local command = vlc.config.userdatadir() .. "\\lua\\extensions\\delfile.exe \"" .. path .. "\""
     retval = os.execute(command)
-    vlc.msg.warn("Executed command '" .. command .. "'. Return: " .. retval)
+    vlc.msg.dbg("Executed command '" .. command .. "'. Return: " .. retval)
     return
   end
 
